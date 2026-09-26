@@ -8,7 +8,7 @@ use App\Models\User;
 it('lets an admin create a salary for a teacher', function () {
     $teacher = Teacher::factory()->create();
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->postJson('/api/v1/teacher-salaries', [
             'teacher_id' => $teacher->id,
             'amount' => '3000.00',
@@ -27,7 +27,7 @@ it('lets an admin create a salary for a teacher', function () {
 it('lets an admin mark a salary as paid', function () {
     $teacher = Teacher::factory()->create();
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->postJson('/api/v1/teacher-salaries', [
             'teacher_id' => $teacher->id,
             'amount' => '3000.00',
@@ -41,7 +41,7 @@ it('lets an admin mark a salary as paid', function () {
 it('lists salaries', function () {
     TeacherSalary::factory()->count(3)->create();
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->getJson('/api/v1/teacher-salaries')
         ->assertOk()
         ->assertJsonCount(3, 'data');
@@ -50,7 +50,7 @@ it('lists salaries', function () {
 it('shows a single salary', function () {
     $salary = TeacherSalary::factory()->create(['amount' => '2500.00']);
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->getJson("/api/v1/teacher-salaries/{$salary->id}")
         ->assertOk()
         ->assertJsonPath('data.amount', '2500.00');
@@ -59,14 +59,14 @@ it('shows a single salary', function () {
 it('updates a salary', function () {
     $salary = TeacherSalary::factory()->create();
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->putJson("/api/v1/teacher-salaries/{$salary->id}", ['amount' => '3200.50'])
         ->assertOk()
         ->assertJsonPath('data.amount', '3200.50');
 });
 
 it('rejects a salary without an amount or a month', function () {
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->postJson('/api/v1/teacher-salaries', [
             'teacher_id' => Teacher::factory()->create()->id,
         ])
@@ -82,7 +82,7 @@ it('rejects a duplicate salary for the same teacher and month', function () {
         'month' => '2026-10',
     ]);
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->postJson('/api/v1/teacher-salaries', [
             'teacher_id' => $teacher->id,
             'amount' => '3000.00',
@@ -93,7 +93,7 @@ it('rejects a duplicate salary for the same teacher and month', function () {
 });
 
 it('refuses to let a staff member create a salary', function () {
-    $this->actingAs(User::factory()->role(UserRole::Staff)->create())
+    $this->withToken(tokenFor(User::factory()->role(UserRole::Staff)->create()))
         ->postJson('/api/v1/teacher-salaries', [
             'teacher_id' => Teacher::factory()->create()->id,
             'amount' => '3000.00',

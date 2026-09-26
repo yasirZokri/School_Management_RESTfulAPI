@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\UserRole;
 use App\Http\Requests\Teacher\StoreTeacherRequest;
 use App\Http\Requests\Teacher\UpdateTeacherRequest;
 use App\Http\Resources\TeacherResource;
 use App\Models\Teacher;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -27,7 +29,22 @@ class TeacherController extends Controller
     {
         $this->authorize('create', Teacher::class);
 
-        $teacher = Teacher::create($request->validated());
+        // Creating a teacher also creates their login account. Only admins
+        // reach this point, and the payload is validated by the Form Request.
+        $data = $request->validated();
+
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => $data['password'], // hashed automatically by the User cast
+            'role' => UserRole::Teacher,
+        ]);
+
+        $teacher = Teacher::create([
+            'user_id' => $user->id,
+            'school_id' => $data['school_id'],
+            'employee_number' => $data['employee_number'],
+        ]);
 
         return TeacherResource::make($teacher->load(['user', 'school']))->response()->setStatusCode(201);
     }

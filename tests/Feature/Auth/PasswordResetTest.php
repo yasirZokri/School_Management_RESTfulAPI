@@ -30,8 +30,7 @@ test('password can be reset with valid token', function () {
         ]);
 
         $response
-            ->assertSessionHasNoErrors()
-            ->assertStatus(200);
+            ->assertOk();
 
         return true;
     });

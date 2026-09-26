@@ -8,7 +8,7 @@ it('lets an admin create a class', function () {
     $school = School::factory()->create();
     $year = AcademicYear::factory()->for($school)->create();
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->postJson('/api/v1/classes', [
             'school_id' => $school->id,
             'academic_year_id' => $year->id,
@@ -25,7 +25,7 @@ it('lets an admin create a class', function () {
 it('lists classes', function () {
     SchoolClass::factory()->count(3)->create();
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->getJson('/api/v1/classes')
         ->assertOk()
         ->assertJsonCount(3, 'data');
@@ -34,7 +34,7 @@ it('lists classes', function () {
 it('shows a single class', function () {
     $class = SchoolClass::factory()->create(['name' => 'Grade 11 - B']);
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->getJson("/api/v1/classes/{$class->id}")
         ->assertOk()
         ->assertJsonPath('data.name', 'Grade 11 - B');
@@ -43,14 +43,14 @@ it('shows a single class', function () {
 it('updates a class', function () {
     $class = SchoolClass::factory()->create();
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->putJson("/api/v1/classes/{$class->id}", ['section' => 'C'])
         ->assertOk()
         ->assertJsonPath('data.section', 'C');
 });
 
 it('rejects a class with a missing name', function () {
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->postJson('/api/v1/classes', [
             'school_id' => School::factory()->create()->id,
             'academic_year_id' => AcademicYear::factory()->create()->id,
@@ -65,7 +65,7 @@ it('rejects a class whose academic year belongs to another school', function () 
     // A year from a DIFFERENT school - this must not be accepted.
     $otherYearsYear = AcademicYear::factory()->create();
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->postJson('/api/v1/classes', [
             'school_id' => $school->id,
             'academic_year_id' => $otherYearsYear->id,

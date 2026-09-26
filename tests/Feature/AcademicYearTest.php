@@ -6,7 +6,7 @@ use App\Models\School;
 it('lets an admin create an academic year', function () {
     $school = School::factory()->create();
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->postJson('/api/v1/academic-years', [
             'school_id' => $school->id,
             'name' => '2026 / 2027',
@@ -23,7 +23,7 @@ it('lets an admin create an academic year', function () {
 it('lists academic years', function () {
     AcademicYear::factory()->count(3)->create();
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->getJson('/api/v1/academic-years')
         ->assertOk()
         ->assertJsonCount(3, 'data');
@@ -32,7 +32,7 @@ it('lists academic years', function () {
 it('shows a single academic year', function () {
     $year = AcademicYear::factory()->create(['name' => '2027 / 2028']);
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->getJson("/api/v1/academic-years/{$year->id}")
         ->assertOk()
         ->assertJsonPath('data.name', '2027 / 2028');
@@ -41,7 +41,7 @@ it('shows a single academic year', function () {
 it('updates an academic year', function () {
     $year = AcademicYear::factory()->create();
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->putJson("/api/v1/academic-years/{$year->id}", ['is_current' => true])
         ->assertOk()
         ->assertJsonPath('data.is_current', true);
@@ -50,7 +50,7 @@ it('updates an academic year', function () {
 it('rejects an academic year with a missing name', function () {
     $school = School::factory()->create();
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->postJson('/api/v1/academic-years', [
             'school_id' => $school->id,
             'starts_on' => '2026-09-01',

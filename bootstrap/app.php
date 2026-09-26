@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureEmailIsVerified;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -13,15 +14,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // The Breeze auth routes live under the api group, but their controllers
-        // use sessions (session login). Without this, /api/login errors because
-        // the request has no session store.
-        $middleware->api(prepend: [
-            \Illuminate\Session\Middleware\StartSession::class,
-        ]);
+        // No StartSession on the API anymore: login now issues a Sanctum
+        // token (Bearer header) instead of using session cookies.
 
         $middleware->alias([
-            'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
+            'verified' => EnsureEmailIsVerified::class,
         ]);
 
         //

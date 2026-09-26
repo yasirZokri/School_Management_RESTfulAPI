@@ -2,23 +2,28 @@
 
 namespace App\Policies;
 
+use App\Enums\UserRole;
 use App\Models\Student;
 use App\Models\User;
 
 /**
  * Answers "may this user do this action on a student?"
- * Anyone can view student records; only admins change them.
+ * Admins and teachers may view student records; a student may view their
+ * own profile (self) but never other students. Only admins change them.
  */
 class StudentPolicy
 {
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->isAdmin() || $user->role === UserRole::Teacher;
     }
 
     public function view(User $user, Student $student): bool
     {
-        return true;
+        return $user->isAdmin()
+            || $user->role === UserRole::Teacher
+            // A student can view their own profile (the linked Student row).
+            || $user->student?->is($student);
     }
 
     public function create(User $user): bool

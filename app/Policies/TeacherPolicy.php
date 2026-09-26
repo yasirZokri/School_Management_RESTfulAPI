@@ -7,18 +7,22 @@ use App\Models\User;
 
 /**
  * Answers "may this user do this action on a teacher?"
- * Anyone can view teacher records; only admins change them.
+ * Teachers are sensitive staff records. The list (viewAny) is admin-only,
+ * and a teacher may view their own profile (self) but nobody checks other
+ * teachers. Students cannot see teachers at all. Only admins change them.
  */
 class TeacherPolicy
 {
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->isAdmin();
     }
 
     public function view(User $user, Teacher $teacher): bool
     {
-        return true;
+        return $user->isAdmin()
+            // A teacher can view their own profile (the linked Teacher row).
+            || $user->teacher?->is($teacher);
     }
 
     public function create(User $user): bool

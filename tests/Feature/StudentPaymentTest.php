@@ -8,7 +8,7 @@ use App\Models\User;
 it('lets an admin record a payment from a student', function () {
     $student = Student::factory()->create();
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->postJson('/api/v1/student-payments', [
             'student_id' => $student->id,
             'amount' => '500.00',
@@ -30,7 +30,7 @@ it('lets an admin record a payment from a student', function () {
 it('lists payments', function () {
     StudentPayment::factory()->count(3)->create();
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->getJson('/api/v1/student-payments')
         ->assertOk()
         ->assertJsonCount(3, 'data');
@@ -39,7 +39,7 @@ it('lists payments', function () {
 it('shows a single payment', function () {
     $payment = StudentPayment::factory()->create(['amount' => '250.00']);
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->getJson("/api/v1/student-payments/{$payment->id}")
         ->assertOk()
         ->assertJsonPath('data.amount', '250.00');
@@ -48,14 +48,14 @@ it('shows a single payment', function () {
 it('updates a payment', function () {
     $payment = StudentPayment::factory()->create();
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->putJson("/api/v1/student-payments/{$payment->id}", ['purpose' => 'books'])
         ->assertOk()
         ->assertJsonPath('data.purpose', 'books');
 });
 
 it('rejects a payment with an unknown purpose', function () {
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->postJson('/api/v1/student-payments', [
             'student_id' => Student::factory()->create()->id,
             'amount' => '100.00',
@@ -68,7 +68,7 @@ it('rejects a payment with an unknown purpose', function () {
 });
 
 it('rejects a payment with an unknown payment method', function () {
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->postJson('/api/v1/student-payments', [
             'student_id' => Student::factory()->create()->id,
             'amount' => '100.00',
@@ -81,7 +81,7 @@ it('rejects a payment with an unknown payment method', function () {
 });
 
 it('rejects a payment without an amount', function () {
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->postJson('/api/v1/student-payments', [
             'student_id' => Student::factory()->create()->id,
             'purpose' => 'tuition',
@@ -93,7 +93,7 @@ it('rejects a payment without an amount', function () {
 });
 
 it('refuses to let a staff member record a payment', function () {
-    $this->actingAs(User::factory()->role(UserRole::Staff)->create())
+    $this->withToken(tokenFor(User::factory()->role(UserRole::Staff)->create()))
         ->postJson('/api/v1/student-payments', [
             'student_id' => Student::factory()->create()->id,
             'amount' => '100.00',

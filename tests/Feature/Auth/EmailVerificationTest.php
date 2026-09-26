@@ -16,7 +16,7 @@ test('email can be verified', function () {
         ['id' => $user->id, 'hash' => sha1($user->email)]
     );
 
-    $response = $this->actingAs($user)->get($verificationUrl);
+    $response = $this->withToken(tokenFor($user))->get($verificationUrl);
 
     Event::assertDispatched(Verified::class);
     expect($user->fresh()->hasVerifiedEmail())->toBeTrue();
@@ -32,7 +32,7 @@ test('email is not verified with invalid hash', function () {
         ['id' => $user->id, 'hash' => sha1('wrong-email')]
     );
 
-    $this->actingAs($user)->get($verificationUrl);
+    $this->withToken(tokenFor($user))->get($verificationUrl);
 
     expect($user->fresh()->hasVerifiedEmail())->toBeFalse();
 });

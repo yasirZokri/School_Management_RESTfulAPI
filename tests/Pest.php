@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -47,4 +48,14 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+/**
+ * Create a Sanctum token for the user so tests can send it as a
+ * "Authorization: Bearer <token>" header, e.g.:
+ *   $this->withToken(tokenFor($user))->getJson('/api/v1/schools')
+ */
+function tokenFor(User $user): string
+{
+    return $user->createToken('test')->plainTextToken;
 }

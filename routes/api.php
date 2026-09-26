@@ -14,16 +14,17 @@ use App\Http\Controllers\TeachingAssignmentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
+Route::middleware(['auth:sanctum', 'throttle:60,1'])->get('/user', function (Request $request) {
     return $request->user();
 });
 
 /*
-| Versioned API routes for the school management system.
-| 'auth' uses the existing Breeze session login for now. All routes
-| are protected: an unauthenticated request gets a 401 JSON response.
+| Versioned, protected API routes for the school management system.
+| All resources live under /api/v1. 'auth:sanctum' checks the
+| Authorization: Bearer <token> header (issued on /api/login).
+| 'throttle:60,1' allows 60 requests per minute per user/IP.
 */
-Route::middleware(['auth'])->prefix('/v1')->group(function () {
+Route::middleware(['auth:sanctum', 'throttle:60,1'])->prefix('v1')->group(function () {
     Route::apiResource('schools', SchoolController::class);
     Route::apiResource('students', StudentController::class);
     Route::apiResource('teachers', TeacherController::class);

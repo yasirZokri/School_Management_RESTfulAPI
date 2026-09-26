@@ -15,7 +15,7 @@ it('lets an admin create a teaching assignment', function () {
         'academic_year_id' => AcademicYear::factory()->for($school)->create()->id,
     ]);
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->postJson('/api/v1/teaching-assignments', [
             'teacher_id' => $teacher->id,
             'class_id' => $class->id,
@@ -35,7 +35,7 @@ it('lets an admin create a teaching assignment', function () {
 it('lists teaching assignments', function () {
     TeachingAssignment::factory()->count(3)->create();
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->getJson('/api/v1/teaching-assignments')
         ->assertOk()
         ->assertJsonCount(3, 'data');
@@ -44,7 +44,7 @@ it('lists teaching assignments', function () {
 it('shows a single teaching assignment', function () {
     $assignment = TeachingAssignment::factory()->create();
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->getJson("/api/v1/teaching-assignments/{$assignment->id}")
         ->assertOk()
         ->assertJsonPath('data.id', $assignment->id);
@@ -54,7 +54,7 @@ it('updates a teaching assignment', function () {
     $assignment = TeachingAssignment::factory()->create();
     $newSubject = Subject::factory()->for($assignment->class->school)->create();
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->putJson("/api/v1/teaching-assignments/{$assignment->id}", [
             'subject_id' => $newSubject->id,
         ])
@@ -63,7 +63,7 @@ it('updates a teaching assignment', function () {
 });
 
 it('rejects a teaching assignment with a missing teacher', function () {
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->postJson('/api/v1/teaching-assignments', [
             'class_id' => SchoolClass::factory()->create()->id,
             'subject_id' => Subject::factory()->create()->id,
@@ -80,7 +80,7 @@ it('rejects a teaching assignment whose teacher and class are in different schoo
     $subject = Subject::factory()->for($schoolB)->create();
     $class = SchoolClass::factory()->for($schoolB)->create();
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->postJson('/api/v1/teaching-assignments', [
             'teacher_id' => $teacher->id,
             'class_id' => $class->id,
@@ -105,7 +105,7 @@ it('rejects a duplicate teaching assignment', function () {
         'academic_year_id' => $year->id,
     ]);
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->postJson('/api/v1/teaching-assignments', [
             'teacher_id' => $teacher->id,
             'class_id' => $class->id,

@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\UserRole;
 use App\Http\Requests\Student\StoreStudentRequest;
 use App\Http\Requests\Student\UpdateStudentRequest;
 use App\Http\Resources\StudentResource;
 use App\Models\Student;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -28,7 +30,22 @@ class StudentController extends Controller
     {
         $this->authorize('create', Student::class);
 
-        $student = Student::create($request->validated());
+        // Creating a student also creates their login account. Only admins
+        // reach this point, and the payload is validated by the Form Request.
+        $data = $request->validated();
+
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => $data['password'], // hashed automatically by the User cast
+            'role' => UserRole::Student,
+        ]);
+
+        $student = Student::create([
+            'user_id' => $user->id,
+            'school_id' => $data['school_id'],
+            'student_number' => $data['student_number'],
+        ]);
 
         return StudentResource::make($student->load(['user', 'school']))->response()->setStatusCode(201);
     }

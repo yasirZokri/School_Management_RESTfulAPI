@@ -6,7 +6,7 @@ use App\Models\Subject;
 it('lets an admin create a subject', function () {
     $school = School::factory()->create();
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->postJson('/api/v1/subjects', [
             'school_id' => $school->id,
             'name' => 'Mathematics',
@@ -21,7 +21,7 @@ it('lets an admin create a subject', function () {
 it('lists subjects', function () {
     Subject::factory()->count(3)->create();
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->getJson('/api/v1/subjects')
         ->assertOk()
         ->assertJsonCount(3, 'data');
@@ -30,7 +30,7 @@ it('lists subjects', function () {
 it('shows a single subject', function () {
     $subject = Subject::factory()->create(['code' => 'SCI']);
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->getJson("/api/v1/subjects/{$subject->id}")
         ->assertOk()
         ->assertJsonPath('data.code', 'SCI');
@@ -39,14 +39,14 @@ it('shows a single subject', function () {
 it('updates a subject', function () {
     $subject = Subject::factory()->create();
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->putJson("/api/v1/subjects/{$subject->id}", ['name' => 'Physics'])
         ->assertOk()
         ->assertJsonPath('data.name', 'Physics');
 });
 
 it('rejects a subject with a missing code', function () {
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->postJson('/api/v1/subjects', [
             'school_id' => School::factory()->create()->id,
             'name' => 'Mathematics',
@@ -59,7 +59,7 @@ it('rejects a duplicate subject code in the same school', function () {
     $school = School::factory()->create();
     Subject::factory()->for($school)->create(['code' => 'MATH']);
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->postJson('/api/v1/subjects', [
             'school_id' => $school->id,
             'name' => 'Algebra',

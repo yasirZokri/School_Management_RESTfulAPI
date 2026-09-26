@@ -15,7 +15,6 @@ class UpdateStudentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => ['sometimes', 'integer', 'exists:users,id'],
             'school_id' => ['sometimes', 'integer', 'exists:schools,id'],
             'student_number' => [
                 'sometimes', 'string', 'max:50',

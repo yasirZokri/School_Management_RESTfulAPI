@@ -14,7 +14,7 @@ it('lets an admin create an enrollment', function () {
         'academic_year_id' => AcademicYear::factory()->for($school)->create()->id,
     ]);
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->postJson('/api/v1/enrollments', [
             'student_id' => $student->id,
             'class_id' => $class->id,
@@ -29,7 +29,7 @@ it('lets an admin create an enrollment', function () {
 it('lists enrollments', function () {
     Enrollment::factory()->count(3)->create();
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->getJson('/api/v1/enrollments')
         ->assertOk()
         ->assertJsonCount(3, 'data');
@@ -38,7 +38,7 @@ it('lists enrollments', function () {
 it('shows a single enrollment', function () {
     $enrollment = Enrollment::factory()->create();
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->getJson("/api/v1/enrollments/{$enrollment->id}")
         ->assertOk()
         ->assertJsonPath('data.id', $enrollment->id);
@@ -47,14 +47,14 @@ it('shows a single enrollment', function () {
 it('updates an enrollment status', function () {
     $enrollment = Enrollment::factory()->create();
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->putJson("/api/v1/enrollments/{$enrollment->id}", ['status' => 'completed'])
         ->assertOk()
         ->assertJsonPath('data.status', 'completed');
 });
 
 it('rejects an enrollment with a missing student', function () {
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->postJson('/api/v1/enrollments', [
             'class_id' => SchoolClass::factory()->create()->id,
             'academic_year_id' => AcademicYear::factory()->create()->id,
@@ -70,7 +70,7 @@ it('rejects an enrollment for a student and class in different schools', functio
     $student = Student::factory()->for($schoolA)->create();
     $class = SchoolClass::factory()->for($schoolB)->create();
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->postJson('/api/v1/enrollments', [
             'student_id' => $student->id,
             'class_id' => $class->id,
@@ -87,7 +87,7 @@ it('rejects an enrollment whose academic year does not match the class', functio
     // A different year for the same school.
     $wrongYear = AcademicYear::factory()->for($school)->create();
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->postJson('/api/v1/enrollments', [
             'student_id' => $student->id,
             'class_id' => $class->id,

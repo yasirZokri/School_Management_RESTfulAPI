@@ -10,7 +10,7 @@ function adminUser(): User
 }
 
 it('lets an admin create a school', function () {
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->postJson('/api/v1/schools', [
             'name' => 'Sunrise High School',
             'address' => '1 Main Street',
@@ -25,7 +25,7 @@ it('lets an admin create a school', function () {
 it('lists schools', function () {
     School::factory()->count(3)->create();
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->getJson('/api/v1/schools')
         ->assertOk()
         ->assertJsonCount(3, 'data');
@@ -34,7 +34,7 @@ it('lists schools', function () {
 it('shows a single school', function () {
     $school = School::factory()->create(['name' => 'Green Valley School']);
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->getJson("/api/v1/schools/{$school->id}")
         ->assertOk()
         ->assertJsonPath('data.name', 'Green Valley School');
@@ -43,21 +43,21 @@ it('shows a single school', function () {
 it('updates a school', function () {
     $school = School::factory()->create();
 
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->putJson("/api/v1/schools/{$school->id}", ['name' => 'Renamed School'])
         ->assertOk()
         ->assertJsonPath('data.name', 'Renamed School');
 });
 
 it('rejects a school without a name', function () {
-    $this->actingAs(adminUser())
+    $this->withToken(tokenFor(adminUser()))
         ->postJson('/api/v1/schools', ['name' => ''])
         ->assertUnprocessable()
         ->assertJsonValidationErrors('name');
 });
 
 it('refuses to let a non-admin create a school', function () {
-    $this->actingAs(User::factory()->role(UserRole::Staff)->create())
+    $this->withToken(tokenFor(User::factory()->role(UserRole::Staff)->create()))
         ->postJson('/api/v1/schools', ['name' => 'Sneaky School'])
         ->assertForbidden();
 });
