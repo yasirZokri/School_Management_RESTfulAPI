@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::post('/login', [LoginController::class, 'store'])
-    ->middleware(['guest', 'throttle:5,1'])
+    ->middleware('throttle:5,1')
     ->name('login');
 
 Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
@@ -35,5 +35,5 @@ Route::post('/email/verification-notification', [EmailVerificationNotificationCo
     ->name('verification.send');
 
 Route::post('/logout', [LoginController::class, 'destroy'])
-    ->middleware(['auth:sanctum', 'throttle:60,1'])
+    ->middleware('throttle:60,1')
     ->name('logout');

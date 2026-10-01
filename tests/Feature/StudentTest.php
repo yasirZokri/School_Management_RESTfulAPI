@@ -13,6 +13,7 @@ it('lets an admin create a student with a linked account', function () {
             'name' => 'Example Student',
             'email' => 'student@example.com',
             'password' => 'password123',
+            'password_confirmation' => 'password123',
             'school_id' => $school->id,
             'student_number' => 'STU0001',
         ])
@@ -119,11 +120,20 @@ it('blocks a non-admin from creating a student', function () {
                 'name' => 'Blocked Create',
                 'email' => 'blocked-create-'.strtolower($role->value).'@example.com',
                 'password' => 'password123',
+                'password_confirmation' => 'password123',
                 'school_id' => $school->id,
                 'student_number' => 'STU0002',
             ])
             ->assertForbidden();
     }
+});
+
+it('blocks a non-admin before validating the student payload', function () {
+    // Authorization must come before validation: a non-admin gets 403 even
+    // when the body is invalid, not a 422 from the validation layer.
+    $this->withToken(tokenFor(User::factory()->role(UserRole::Teacher)->create()))
+        ->postJson('/api/v1/students', [])
+        ->assertForbidden();
 });
 
 it('blocks a non-admin from deleting a student', function () {

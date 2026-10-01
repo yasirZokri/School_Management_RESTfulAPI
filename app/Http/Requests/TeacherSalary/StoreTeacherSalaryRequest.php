@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\TeacherSalary;
 
+use App\Models\TeacherSalary;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -9,7 +10,7 @@ class StoreTeacherSalaryRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->can('create', TeacherSalary::class);
     }
 
     public function rules(): array

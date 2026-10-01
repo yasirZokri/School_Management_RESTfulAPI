@@ -13,7 +13,7 @@ class UpdateTeachingAssignmentRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->can('update', $this->route('teaching_assignment'));
     }
 
     public function rules(): array

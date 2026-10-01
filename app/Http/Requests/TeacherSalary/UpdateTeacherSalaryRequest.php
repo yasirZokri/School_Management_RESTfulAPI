@@ -9,7 +9,7 @@ class UpdateTeacherSalaryRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->can('update', $this->route('teacher_salary'));
     }
 
     public function rules(): array

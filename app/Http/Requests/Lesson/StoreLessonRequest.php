@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Lesson;
 
+use App\Models\Lesson;
 use App\Models\TeachingAssignment;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
@@ -10,7 +11,7 @@ class StoreLessonRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->can('create', Lesson::class);
     }
 
     public function rules(): array

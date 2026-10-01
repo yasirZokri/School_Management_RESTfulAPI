@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Enrollment;
 
+use App\Models\Enrollment;
 use App\Models\SchoolClass;
 use App\Models\Student;
 use Illuminate\Foundation\Http\FormRequest;
@@ -11,7 +12,7 @@ class StoreEnrollmentRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->can('create', Enrollment::class);
     }
 
     public function rules(): array

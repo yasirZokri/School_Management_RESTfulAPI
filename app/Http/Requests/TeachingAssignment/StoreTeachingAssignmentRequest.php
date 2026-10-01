@@ -5,6 +5,7 @@ namespace App\Http\Requests\TeachingAssignment;
 use App\Models\SchoolClass;
 use App\Models\Subject;
 use App\Models\Teacher;
+use App\Models\TeachingAssignment;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
@@ -13,7 +14,7 @@ class StoreTeachingAssignmentRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->can('create', TeachingAssignment::class);
     }
 
     public function rules(): array

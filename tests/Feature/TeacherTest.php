@@ -120,11 +120,18 @@ it('blocks a non-admin from creating a teacher', function () {
                 'name' => 'Blocked Create',
                 'email' => 'blocked-create-'.strtolower($role->value).'@example.com',
                 'password' => 'password123',
+                'password_confirmation' => 'password123',
                 'school_id' => $school->id,
                 'employee_number' => 'EMP0002',
             ])
             ->assertForbidden();
     }
+});
+
+it('blocks a non-admin before validating the teacher payload', function () {
+    $this->withToken(tokenFor(User::factory()->role(UserRole::Student)->create()))
+        ->postJson('/api/v1/teachers', [])
+        ->assertForbidden();
 });
 
 it('blocks a non-admin from deleting a teacher', function () {

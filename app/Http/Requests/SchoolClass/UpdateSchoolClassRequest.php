@@ -9,7 +9,7 @@ class UpdateSchoolClassRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->can('update', $this->route('class'));
     }
 
     public function rules(): array
